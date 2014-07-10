@@ -1,0 +1,208 @@
+Building the Lakes database
+========================================================
+
+
+
+```{r setup, include=FALSE, echo=FALSE, cache=TRUE}
+  options(stringsAsFactors = FALSE)
+
+  #function to install (if needed) and load R packages by list
+    libs<-c('rgdal','rgeos','sp','maptools') #list of packages to load
+  
+    installLoad<-function(pck)#user defined function
+    {
+      if(!pck%in%installed.packages()){install.packages(pck,repos="http://rweb.quant.ku.edu/cran/")}
+      require(pck, character.only = TRUE)
+    }
+  
+    lapply(libs,function(x) installLoad(x))  #Load/Install require packages
+```
+
+
+```{r readData, include=FALSE, echo=FALSE, cache=TRUE}
+#create spatial polygons dataframes V1 (original MRB1 lakes) and V2 (Morho lakes)
+#Read the NHDplusV2 lake morpho shapefile for HUC 01.  
+  HUC01<-readOGR('C:/Bryan/EPA/Data/LakesDatabase/LakeMorpho/ne01lakemorpho.shp',
+                 layer='ne01lakemorpho')
+  #get shapefile info
+    #list slots
+      getSlots(class(HUC01))
+    #show projection info
+      proj4string(HUC01)
+      #this is the ESRI "North_America_Albers_Equal_Area_Conic" projection
+        #save the projection
+          Albers<-CRS(proj4string(HUC01))
+
+#Read the NHDplusV2 lake morpho shapefile for HUC 02.  
+  HUC02<-readOGR('C:/Bryan/EPA/Data/LakesDatabase/LakeMorpho/ma02lakemorpho.shp',
+                 layer='ma02lakemorpho')
+
+#V2:  rbind HUC01 and HUC02
+  #need to change FIDs first
+    HUC01<-spChFIDs(HUC01, as.character(HUC01$COMID))
+    HUC02<-spChFIDs(HUC02, as.character(HUC02$COMID))
+  #rbind
+    V2<-spRbind(HUC01,HUC02)
+  #Associate lake holes (islands) with the correct polygon.  
+    slot(V2, "polygons") <- lapply(slot(V2, "polygons"), checkPolygonsHoles)
+
+
+#V1:  Read NHDplusV1 WBIDLakes from WaterbodyDatabase.mdb
+  WBDBdir<-"C:/Bryan/EPA/Data/WaterbodyDatabase/"  #define the directory where the data are stored
+    # List feature classes in the geodatabase
+      ogrListLayers(dsn= file.path(WBDBdir, "WaterBodyDataBase.mdb"))
+    #read the WBIDLakes polygon features
+      V1<-readOGR(dsn= file.path(WBDBdir,"WaterBodyDataBase.mdb"),"MRB1_WBIDLakes")
+    #get feature info
+      #list slots
+        getSlots(class(V1))
+      #read first lines of attributes
+        head(V1@data)
+      #show projection info
+        proj4string(V1)
+        #this is the ESRI "GCS_North_American_1983" projection
+      #reproject to Albers
+        V1<-spTransform(V1,Albers)   
+      #Associate lake holes (islands) with the correct polygon.  
+          slot(V1, "polygons") <- lapply(slot(V1, "polygons"), checkPolygonsHoles)
+
+```
+
+```{r compV1_V2, include=FALSE, echo=FALSE, cache=TRUE}
+  #calculate the areas by NHD version
+    #get the Version 1 area
+      V1area<-data.frame(WBID=V1$WB_ID,areaV1=gArea(V1,byid=TRUE))
+    #get the Version 2 area
+      V2area<-data.frame(WBID=V2$COMID,areaV2=gArea(V2,byid=TRUE))
+  #compare areas by WBID
+    comp<-merge(V1area,V2area,by='WBID',all=T)
+      #check for missing values    
+        table(is.na(comp$areaV1))  #missing values = 305
+        table(is.na(comp$areaV2))  #missing values = 297
+      #calculate difference in area for polygons with the same WBID
+        comp$perDif<-abs(round((comp$areaV1-comp$areaV2)/comp$areaV1,2))
+        table(comp$perDif>0)  ##areas are different for 6 WBIDs
+      #create a list of WBIDs to check
+        chk<-subset(comp$WBID,comp$perDif>0|is.na(comp$areaV1)|is.na(comp$areaV2)) ;length(chk) #608
+      #flag WBIDs to check; Note if flag=0 than WBID is the same in V1 and V2
+        comp$flag<-0
+        comp$flag[comp$WBID%in%chk]<-1
+        table(comp$flag,useNA='ifany')
+  #create spdf to check
+    #version 1
+      keep<-V1$WB_ID%in%chk;table(keep)  #303 lakes that match chk
+      chkV1<-V1[keep,]  #subset data
+        #writeOGR(chkV1,getwd(),'chkV1', driver="ESRI Shapefile") #write to shapefile
+    #version 2
+      keep<-V2$COMID%in%chk;table(keep)  #303 lakes that match chk
+      chkV2<-V2[keep,]  #subset data
+        #writeOGR(chkV2,getwd(),'chkV2', driver="ESRI Shapefile") #write to shapefile
+    
+  #Use overlay to match V1 flagged lakes to V2 flagged lakes
+    #function to overlay one spdf on another and extract matching indices
+        fOver<-function(One,Two){ #One & Two are the spatial objects
+          a<-over(One, Two, returnList = TRUE) #run overlay
+          Max<-length(unlist(a))+length(a)  #get max length for output df
+          out<-data.frame(One=rep(NA,Max),Two=rep(NA,Max)) #create df for output
+          w<-0   #counter for output df row
+          #start loop to deconstruct the list
+            for(i in c(1:length(a))){ 
+              if(length(a[[i]])==0){
+                w<-w+1
+                out[w,]<-(c(i,NA))
+              } else { 
+                for(j in c(1:length(a[[i]]))){ 
+                  w<-w+1
+                  out[w,]<-(c(i,a[[i]][j]))
+                }}}
+          out<-subset(out,!is.na(out[,1])) #remove missing values
+          return(out)
+        }
+  #overlay V1 on V2 and extract the WBID matches
+    chkV1V2<-fOver(chkV1,chkV2)
+      a<-data.frame(WBID_V1=chkV1$WB_ID[chkV1V2$One],WBID_V2=chkV2$COMID[chkV1V2$Two])
+  #overlay V2 on V1 and extract the WBID matches
+    chkV2V1<-fOver(chkV2,chkV1)
+      b<-data.frame(WBID_V1=chkV1$WB_ID[chkV2V1$Two],WBID_V2=chkV2$COMID[chkV2V1$One])
+  #Find lakes that match more than one lake in the other version
+    #first get the unique WBID from the overlays.  
+      Check<-unique(rbind(a,b))
+        nrow(Check) #317
+      #select V1 lakes that appear more than once in "Check"
+        a1<-data.frame(table(Check$WBID_V1))
+        CheckV1<-a1[a1$Freq>1,1]
+          keep1<-Check$WBID_V1%in%CheckV1;table(keep1) 
+        
+      #select V2 lakes that appear more than once in "Check"
+        a2<-data.frame(table(Check$WBID_V2))
+        CheckV2<-a2[a2$Freq>1,1]
+          keep2<-Check$WBID_V2%in%CheckV2;table(keep2) 
+
+      #make a list of WBIDs to check visually
+        chkWBID<-rbind(Check[keep1,],Check[keep2,])
+
+  #add the area data to df check
+    chkArea<-merge(Check,V1area,by.x='WBID_V1',by.y='WBID',all.x=TRUE)
+    chkArea<-merge(chkArea,V2area,by.x='WBID_V2',by.y='WBID',all.x=TRUE)
+  #calculate difference in area for polygons with the same location
+        chkArea$perDif<-abs(round((chkArea$areaV1-chkArea$areaV2)/chkArea$areaV1,2))
+  #flag WBIDs to check; Note if flag=0 than WBID is the same in V1 and V2
+        chkArea$flag<-ifelse(chkArea$perDif>0|is.na(chkArea$areaV1)|is.na(chkArea$areaV2),1,0)
+        sum(chkArea$flag)   #35 lakes to check
+  chkArea[chkArea$flag==1,]
+
+  #list of WBID to check
+    a<-na.exclude(chkArea)  #deal with NA lakes later
+    chk<-unique(c(a[a$flag==1,1],a[a$flag==1,2]))
+    #version 1      
+      keep<-V1$WB_ID%in%chk;table(keep)  #17 lakes that match chk
+      checkV1<-V1[keep,"WB_ID" ]  #subset data
+      names(checkV1)<-"WBID" 
+      checkV1$V<-1
+    #version 2
+      keep<-V2$COMID%in%chk;table(keep)  #25 lakes that match chk
+      checkV2<-V2[keep,"COMID"]  #subset data
+      names(checkV2)<-"WBID"
+      checkV2$V<-2
+    #n
+      chkKML<-spRbind(checkV1,checkV2) #creat sPDF
+      chkKML<-spTransform(chkKML,CRS("+proj=longlat +datum=WGS84")) 
+      writeOGR(chkKML, 'chkLakes.kml', chkKML$WBID, "KML")#create kml file
+      writeOGR(chkKML["WBID"], 'chkLakes.kml', chkKML$WBID, "KML",overwrite_layer=TRUE)#create kml file
+
+writeOGR(obj=chkKML["WBID"],dsn='chkLakes.kml',layer="",driver="KML",overwrite_layer=TRUE)#create kml file
+
+
+
+```
+
+
+#Function to plot a lake from one source and all lakes nearby from a second source
+  #find a lake in first source (default=V1; NHDplusV1 HUC01 and HUC02)
+  #create a bounding box (default=0.2; 20%) around the lake and increase the size by a scaling proportion
+  #find lakes in a second source (default=V2; NHDplusV1 HUC01 and HUC02)  that intersect the boundary box
+  #plot results
+
+  plotLakes<-function(Source1='V1',Source2='V2',IDname='WB_ID',ID=1720193,Scale=.2){
+    a1<-Source1[Source1[,IDname]==ID,] 
+  #create boundary box polygon
+    bb<-bbox(a1) #get the bbox
+      #scale the box
+        dx<-(bb[1,2]-bb[1,1])*Scale
+        dy<-(bb[2,2]-bb[2,1])*Scale
+        X<-c(bb[1,1]-dx,bb[1,2]+dx)
+        Y<-c(bb[2,1]-dy,bb[2,2]+dy)
+        bb<-rbind(X,Y)
+      #create bbox polygon object
+        xpol<-c(bb[1,1],bb[1,2],bb[1,2],bb[1,1],bb[1,1])
+        ypol<-c(bb[2,1],bb[2,1],bb[2,2],bb[2,2],bb[2,1])
+        pol = SpatialPolygons(list(Polygons(list(Polygon(cbind(xpol,ypol))), ID="x1")),proj4string=Albers)
+  #interect scaled bbox with WBIDLakes and create new SP object with these lakes
+    keep<-gIntersects(WBIDLakes,pol,byid=TRUE)  #intersect step
+    LakesV1<-WBIDLakes[drop(keep),]  #drop needed to reduce this to just the boolean
+  #plot results
+    plot(LakesV1,col='blue',border=NA)  
+    plot(a1,col=NA,border='red',lwd=2,add=TRUE)
+    #text(coordinates(LakesV1), labels=LakesV1@data$WB_ID, cex=.8)
+  }
+plotLakes()
