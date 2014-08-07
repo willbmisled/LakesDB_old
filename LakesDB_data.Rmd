@@ -1,9 +1,7 @@
 Building the Lakes database
 ========================================================
 
-
-
-```{r setup, include=FALSE, echo=FALSE, cache=TRUE}
+```{r loadPkgs, include=FALSE, echo=FALSE, cache=TRUE}
   options(stringsAsFactors = FALSE)
 
   #function to install (if needed) and load R packages by list
@@ -17,9 +15,8 @@ Building the Lakes database
   
     lapply(libs,function(x) installLoad(x))  #Load/Install require packages
 ```
+```{r loadData, include=FALSE, echo=FALSE, cache=TRUE}
 
-
-```{r readData, include=FALSE, echo=FALSE, cache=TRUE}
 #create spatial polygons dataframes V1 (original MRB1 lakes) and V2 (Morho lakes)
 #Read the NHDplusV2 lake morpho shapefile for HUC 01.  
   HUC01<-readOGR('C:/Bryan/EPA/Data/LakesDatabase/LakeMorpho/ne01lakemorpho.shp',
@@ -67,6 +64,23 @@ Building the Lakes database
           slot(V1, "polygons") <- lapply(slot(V1, "polygons"), checkPolygonsHoles)
 
 ```
+#Packages and Data
+1.  Install packages `r print(libs)` 
+2.  Load the NHD HUC01 & 02 lakes (MRB1) based on NHDplus Version 1. 
+3.  Reproject to Albers
+4.  Associate lake holes with correct polygon
+5.  Save as SpatialPolygonsDataFrame "V1"
+
+Here are the first few lines of the V1 attribute data: `r head(V1@data)` 
+
+6.  Load the NHD HUC01 lakes based on NHDplus Version 2.
+7.  Load the NHD HUC02 lakes based on NHDplus Version 2.
+8.  Combine HUC01 and HUC02
+9.  Associate lake holes with correct polygon
+10.  Save as SpatialPolygonsDataFrame "V2"
+
+Here are the first few lines of the V2 attribute data: `r head(V2@data)` 
+
 
 ```{r compV1_V2, include=FALSE, echo=FALSE, cache=TRUE}
   #calculate the areas by NHD version
@@ -88,13 +102,20 @@ Building the Lakes database
         comp$flag<-0
         comp$flag[comp$WBID%in%chk]<-1
         table(comp$flag,useNA='ifany')
+
+#Start crosswalk list WBID in V1 and V2
+  a<-comp[comp$flag==0,]
+  WBID_V1V2<-cbind(WBID_V1=a$WBID,WBID_V2=a$WBID)
+
+
+#need to match unmatched WBID to lakes
   #create spdf to check
     #version 1
       keep<-V1$WB_ID%in%chk;table(keep)  #303 lakes that match chk
       chkV1<-V1[keep,]  #subset data
         #writeOGR(chkV1,getwd(),'chkV1', driver="ESRI Shapefile") #write to shapefile
     #version 2
-      keep<-V2$COMID%in%chk;table(keep)  #303 lakes that match chk
+      keep<-V2$COMID%in%chk;table(keep)  #311 lakes that match chk
       chkV2<-V2[keep,]  #subset data
         #writeOGR(chkV2,getwd(),'chkV2', driver="ESRI Shapefile") #write to shapefile
     
@@ -120,10 +141,65 @@ Building the Lakes database
         }
   #overlay V1 on V2 and extract the WBID matches
     chkV1V2<-fOver(chkV1,chkV2)
-      a<-data.frame(WBID_V1=chkV1$WB_ID[chkV1V2$One],WBID_V2=chkV2$COMID[chkV1V2$Two])
   #overlay V2 on V1 and extract the WBID matches
     chkV2V1<-fOver(chkV2,chkV1)
+  
+
+#combine overlays to generate list of WBID matches V1 and V2
+      a<-data.frame(WBID_V1=chkV1$WB_ID[chkV1V2$One],WBID_V2=chkV2$COMID[chkV1V2$Two])
       b<-data.frame(WBID_V1=chkV1$WB_ID[chkV2V1$Two],WBID_V2=chkV2$COMID[chkV2V1$One])
+      matchV1V2<-unique(rbind(a,b))
+        nrow(matchV1V2) #317
+  #get counts for WBID's-check for multiple listings\
+    #V2
+      count2<-data.frame(table(matchV1V2$WBID_V2)) 
+        names(count2)<-c('WBID_V2','nV2')
+        matchV1V2<-merge(matchV1V2,count2,by='WBID_V2',all=T)
+          nrow(matchV1V2) #317
+    #V1
+      count1<-data.frame(table(matchV1V2$WBID_V1)) 
+        names(count1)<-c('WBID_V1','nV1')
+        matchV1V2<-merge(matchV1V2,count1,by='WBID_V1',all=T)
+          nrow(matchV1V2) #317
+    #add flag for multiple WBID entries
+      matchV1V2$flagWBID<-ifelse(matchV1V2$nV1+matchV1V2$nV2==2,0,1)
+      matchV1V2$flagWBID[is.na(matchV1V2$flagWBID)]<-2
+        table(matchV1V2$flagWBID,useNA='ifany') 
+            #matchV1V2$flagWBID==0 count=287 1 WBID_V1 corresponds to 1 WBID_V2; no problems
+            #matchV1V2$flagWBID==1 count=22 multiple WBID in V1 or V2 for a single lake in other version
+            #matchV1V2$flagWBID==1 count=8 WBID missing in V1 or V2 
+    #add the area data to matchV1V2
+      matchV1V2<-merge(matchV1V2,V1area,by.x='WBID_V1',by.y='WBID',all.x=TRUE)
+      matchV1V2<-merge(matchV1V2,V2area,by.x='WBID_V2',by.y='WBID',all.x=TRUE)
+    #calculate difference in area for polygons with the same location
+      matchV1V2$perDif<-abs(round((matchV1V2$areaV1-matchV1V2$areaV2)/matchV1V2$areaV1,2))
+    #flag Areas to check; Note if flag=0 than areas match
+          matchV1V2$flagArea<-ifelse(matchV1V2$perDif>0,1,0)
+          matchV1V2$flagArea[is.na(matchV1V2$flagArea)]<-0 #one or more area missing=identified in flagWBID
+            table(matchV1V2$flagArea,useNA='ifany') 
+    #add overall flag for flagArea+flagWBID>0
+      matchV1V2$flag<-ifelse(matchV1V2$flagWBID>0|matchV1V2$flagArea>0,1,0)
+          table(matchV1V2$flag,matchV1V2$flagArea)
+    #add matchV1V2$flag==0 WBIDs to WBID_V1V2
+      a<-matchV1V2[matchV1V2$flag==0,c('WBID_V1','WBID_V2')]
+      WBID_V1V2<-rbind(WBID_V1V2,a)
+
+  
+    #add matchV1V2$flag>0 WBIDs to list to check visually.
+      chkV1V2<-matchV1V2[matchV1V2$flag!=0,c(2,1,4,3,5:10)]
+
+  #save the data
+    save(V1,V2,WBID_V1V2,chkV1V2,file='./data/MRB1_V1V2.rda')
+
+  #load(file='./data/MRB1_V1V2.rda')
+``` 
+
+
+
+   
+    
+
+
   #Find lakes that match more than one lake in the other version
     #first get the unique WBID from the overlays.  
       Check<-unique(rbind(a,b))
@@ -142,17 +218,60 @@ Building the Lakes database
         chkWBID<-rbind(Check[keep1,],Check[keep2,])
 
   #add the area data to df check
-    chkArea<-merge(Check,V1area,by.x='WBID_V1',by.y='WBID',all.x=TRUE)
-    chkArea<-merge(chkArea,V2area,by.x='WBID_V2',by.y='WBID',all.x=TRUE)
+    matchV1V2<-merge(Check,V1area,by.x='WBID_V1',by.y='WBID',all.x=TRUE)
+    matchV1V2<-merge(matchV1V2,V2area,by.x='WBID_V2',by.y='WBID',all.x=TRUE)
+    matchV1V2<-matchV1V2[,c(2,1,3,4)]  #reorder columns-just because
   #calculate difference in area for polygons with the same location
-        chkArea$perDif<-abs(round((chkArea$areaV1-chkArea$areaV2)/chkArea$areaV1,2))
+        matchV1V2$perDif<-abs(round((matchV1V2$areaV1-matchV1V2$areaV2)/matchV1V2$areaV1,2))
   #flag WBIDs to check; Note if flag=0 than WBID is the same in V1 and V2
-        chkArea$flag<-ifelse(chkArea$perDif>0|is.na(chkArea$areaV1)|is.na(chkArea$areaV2),1,0)
-        sum(chkArea$flag)   #35 lakes to check
-  chkArea[chkArea$flag==1,]
+        matchV1V2$flag<-ifelse(matchV1V2$perDif>0|is.na(matchV1V2$areaV1)|is.na(matchV1V2$areaV2),1,0)
+        sum(matchV1V2$flag)   #35 lakes to check
+  matchV1V2[matchV1V2$flag==1,]
+
+#map the lakes to check
+  a<-matchV1V2[matchV1V2$flag==1,] #list of flagged lakes
+  a  #print the list
+  Rows<-c(1:2) #choose rows of lakes to map
+  keep1<-V1$WB_ID%in%unique(a$WBID_V1[Rows]);table(keep1)
+  mapV1<-V1[keep1,] #select lake(s) to map
+  mapV1<-spTransform(mapV1,CRS("+proj=longlat +datum=WGS84")) #reproject to match googlemaps
+
+  dum = fortify(mapV1, region = "WB_ID")
+  ggplot(dum, aes(x = long, y = lat)) + geom_path()
+
+  center <- coordinates(mapV1)
+  G <- ggmap(get_googlemap(center = center, color = 'bw', scale = 4), extent = "device")
+  G1 <- G + geom_polygon(aes(x=POINT_X, y=POINT_Y ),data=DB, color="red", size=5)
+  plot(G1)
+
+  geom_polygon
+
+x<-V1[V1$WB_ID==1720193,]
+dum = fortify(x, region = "WB_ID")
+G1<-
+
+ggplot(dum, aes(x = long, y = lat)) + geom_path()
+
+x<-V1[V1$WB_ID==1720193,]
+dum = fortify(x, region = "WB_ID")
+ggplot(dum, aes(x = long, y = lat)) + geom_path()
+
+
+DB <- data.frame(FID=c(0,1), city=c("New York", "Newark"),   POINT_X=c(-73.996786,-74.172237), POINT_Y=c(40.720813,40.732196 ))
+gc <- geocode("new york, usa")
+center <- as.numeric(gc)
+G <- ggmap(get_googlemap(center = center, color = 'bw', scale = 4), extent = "device",maptype ="hybrid")
+    #maptype = c("terrain", "satellite", "roadmap", "hybrid")
+G1 <- G + geom_point(aes(x=POINT_X, y=POINT_Y ),data=DB, color="red", size=5)
+plot(G1)
+
+  
+
+
+
 
   #list of WBID to check
-    a<-na.exclude(chkArea)  #deal with NA lakes later
+    a<-na.exclude(matchV1V2)  #deal with NA lakes later
     chk<-unique(c(a[a$flag==1,1],a[a$flag==1,2]))
     #version 1      
       keep<-V1$WB_ID%in%chk;table(keep)  #17 lakes that match chk
@@ -164,17 +283,45 @@ Building the Lakes database
       checkV2<-V2[keep,"COMID"]  #subset data
       names(checkV2)<-"WBID"
       checkV2$V<-2
-    #n
-      chkKML<-spRbind(checkV1,checkV2) #creat sPDF
-      chkKML<-spTransform(chkKML,CRS("+proj=longlat +datum=WGS84")) 
-      writeOGR(chkKML, 'chkLakes.kml', chkKML$WBID, "KML")#create kml file
-      writeOGR(chkKML["WBID"], 'chkLakes.kml', chkKML$WBID, "KML",overwrite_layer=TRUE)#create kml file
 
-writeOGR(obj=chkKML["WBID"],dsn='chkLakes.kml',layer="",driver="KML",overwrite_layer=TRUE)#create kml file
+  #view the lakes to check in GoogleEarth
+    #combine v1 and v2 polygons  
+      chkKML<-spRbind(checkV1,checkV2) 
+    #re-project to geographic
+      chkKML<-spTransform(chkKML,CRS("+proj=longlat +datum=WGS84"))
+      chkKML<-chkKML[order(chkKML$WBID,chkKML$V),] #sort by WBID and Version
+    #sor
+    #write polygons to KML-
+      writeOGR(obj=chkKML["WBID"],dsn='chkLakes.kml',layer="",driver="KML",overwrite_layer=TRUE)#create kml file
+    #open google earth to view kml
+      shell.exec('chkLakes.kml')
+        #unfortunately there does not appear any way to have the WBID appear in the name so...
+    #add a points layer to show the WBIDs of the lakes
+      #convert to SpatialPtsDF
+        chkPts<-SpatialPointsDataFrame(coords=coordinates(chkKML),data=chkKML@data) #create object
+        chkPts$Name<-paste(chkPts$WBID,'v',chkPts$V,sep='') #add name field with WBID and version
+        chkPts<-chkPts[order(chkPts$WBID,chkPts$V),] #sort by WBID and Version
+      #write to KML  Source: http://stackoverflow.com/questions/21487010/assistance-with-name-and-styleurl-in-kml-when-using-writeogr-from-rgdal
+        kmlPoints(chkPts["WBID"],kmlfile='chkPts.kml',name=chkPts$Name,
+                  icon = "http://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png")  
+                            #the silly penguin icon can be changed
+      #display pts in google earth.  Not the best fix but useful
+        shell.exec('chkPts.kml')
 
 
 
-```
+
+
+https://maps.google.com/?q=http://hardware-stores.cmac.ws/MN/Winona.kml
+browseURL('https://github.com/jhollist/hkm2014/blob/master/data/hkm2014Data.md')
+https://github.com/willbmisled/LakesDB/blob/master/chkLakes.kml
+load(url('https://raw.github.com/jhollist/hkm2014/master/data/hkm2014Data.rda'))
+https://raw.github.com/willbmisled/LakesDB/master/chkLakes.kml
+
+
+https://maps.google.com/?q=https://github.com/willbmisled/LakesDB/blob/master/chkLakes.kml
+
+https://maps.google.com/?q=https://raw.github.com/willbmisled/LakesDB/master/chkLakes.kml
 
 
 #Function to plot a lake from one source and all lakes nearby from a second source

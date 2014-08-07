@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name></name>
+<description><![CDATA[]]></description>
+
+<Style id="style1">
+  <IconStyle>
+    <Icon>
+      <href>http://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png</href>
+    </Icon>
+  </IconStyle>
+</Style>
+
+<Placemark>
+  <name>1720187v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-69.2921342598363,45.4193821751094
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>1720193v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-69.2921342757017,45.4193821626833
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>1720193v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-69.3167421523315,45.4131293837154
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>4724203v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-76.2641624245373,39.7573557948973
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>4726045v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-76.2771862993756,39.7769843586654
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>5842312v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-70.8650274341847,43.5280190484073
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>6094729v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-72.8633477954265,42.293648383221
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>6710763v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-69.528146391158,44.2547961615297
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>6732123v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-71.6483335270291,43.4927965411711
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>6760548v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-71.7608410105227,43.364609400307
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>7688829v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-72.2261673868477,42.4100481171973
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>7689297v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-71.9999498777161,42.2146148394511
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>7717818v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-73.3404399703437,41.4839424209811
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>7717850v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-73.2193820755803,41.4192371947156
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>8086079v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-75.155768139092,42.4993113929837
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>8390908v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-75.5621218026299,38.5590738877293
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>8390908v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-75.5520023672493,38.5578745201465
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9312497v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-70.8640790499492,43.5203460370055
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9326590v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-72.1682568362195,43.6419546722202
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9326606v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-72.1400072401455,43.6223059990066
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9326606v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-72.1400072529281,43.622306015882
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9344247v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-71.998982399869,42.2137408360136
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9443357v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-74.3942146125791,39.5598127034801
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9479066v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-74.394214607615,39.5598126994232
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9479066v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-74.3909680488537,39.560601517669
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9512546v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-74.8261072772087,40.6158350614078
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9512548v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-74.8261072708313,40.6158350747098
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>9512548v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-74.8504331709254,40.6286026678528
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>11686920v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-76.3515960822341,39.8529692514779
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>22222791v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-72.2261673672852,42.4100481359041
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>22222791v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-72.2261673868477,42.4100481171973
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>22223101v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-71.9995409012898,42.2116676069684
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>22746261v1</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-75.1563039626235,42.5005315383155
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>120052268v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-73.2958258779923,41.4600962464004
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>120053255v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-76.4713499180494,39.9752181141548
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>120053397v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-70.8611265741821,43.4957858043813
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>120053438v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-75.1559689649639,42.4997686581889
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>166174267v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-71.685944770043,43.5162274186224
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>166174657v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-71.9995409033583,42.2116675972586
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>166174730v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-72.8568258612678,42.3249395533887
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>931050002v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-69.5320977667064,44.2542703255884
+    </coordinates>
+  </Point>
+</Placemark>
+<Placemark>
+  <name>931070002v2</name>
+  <description><![CDATA[]]></description>
+  <styleUrl>#style1</styleUrl>
+  <Point>
+    <coordinates>
+-71.7650773491272,43.3524252960847
+    </coordinates>
+  </Point>
+</Placemark>
+</Document>
+</kml>
