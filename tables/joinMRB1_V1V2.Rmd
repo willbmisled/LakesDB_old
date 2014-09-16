@@ -3,7 +3,8 @@ A table to join the Waterbody IDs (WBID) for lakes in MRB1 (HUC01 and HUC02) fro
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
   library(knitr)
-  knit('./tables/joinMRB1_V1V2.rmd')
+      #setwd('./tables/')setwd('./tables/')
+  knit('./joinMRB1_V1V2.rmd')
 -->
 Introduction:
 -------------------------
@@ -51,6 +52,7 @@ flag==6 | V2 Duplicate lake; V2_166421080=V2_19333669=V1_19333669
 
 ```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
   options(stringsAsFactors = FALSE, scipen=9) 
+  setwd('../tables/')
 
   #function to install (if needed) and load R packages by list
     libs<-c('rgdal','rgeos','sp','maptools','RgoogleMaps','ggplot2','ggmap') #list of packages to load
@@ -962,10 +964,10 @@ table(joinMRB1_V1V2$WBID_V2%in%V2$COMID)
 
 Save the data
 -------------------------
-* joinMRB1_V1V2 saved to './tables/joinMRB1_V1V2.rda'
+* joinMRB1_V1V2 saved to './joinMRB1_V1V2.rda'
 
 ```{r Save, include=FALSE, echo=FALSE, cache=FALSE}
   #save the data
-    save(joinMRB1_V1V2,file='../tables/joinMRB1_V1V2.rda')
+    save(joinMRB1_V1V2,file='../joinMRB1_V1V2.rda')
 ```
  
