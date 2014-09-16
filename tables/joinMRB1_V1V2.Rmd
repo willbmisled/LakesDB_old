@@ -1,4 +1,4 @@
-Create a table to join the Waterbody IDs (WBID) for lakes in MRB1 (HUC01 and HUC02) from NHDplus Version 1 and 2
+A table to join the Waterbody IDs (WBID) for lakes in MRB1 (HUC01 and HUC02) from NHDplus Version 1 and 2
 ========================================================
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
