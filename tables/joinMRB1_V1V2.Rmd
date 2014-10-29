@@ -3,7 +3,9 @@ A table to join the Waterbody IDs (WBID) for lakes in MRB1 (HUC01 and HUC02) fro
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
   library(knitr)
-      #setwd('./tables/')setwd('./tables/')
+      a<-getwd()
+        if(substr(a,nchar(a)-6,nchar(a))=='LakesDB') {setwd('./tables/')
+          } else {if(substr(a,nchar(a)-5,nchar(a))!='tables') print('Check Working Directory')}
   knit('./joinMRB1_V1V2.rmd')
 -->
 Introduction:
@@ -50,9 +52,8 @@ flag==6 | V2 Duplicate lake; V2_166421080=V2_19333669=V1_19333669
 
 
 
-```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
+```{r loadPkgs, include=FALSE, echo=FALSE, cache=TRUE}
   options(stringsAsFactors = FALSE, scipen=9) 
-  setwd('../tables/')
 
   #function to install (if needed) and load R packages by list
     libs<-c('rgdal','rgeos','sp','maptools','RgoogleMaps','ggplot2','ggmap') #list of packages to load
@@ -66,7 +67,7 @@ flag==6 | V2 Duplicate lake; V2_166421080=V2_19333669=V1_19333669
     lapply(libs,function(x) installLoad(x))  #Load/Install require packages
 ```
 
-```{r loadData, include=FALSE, echo=FALSE, cache=FALSE}
+```{r loadData, include=FALSE, echo=FALSE, cache=TRUE}
 #create spatial polygons dataframes V1 (original MRB1 lakes) and V2 (Morho lakes)
 #Read the NHDplusV2 lake morpho shapefile for HUC 01.  
   HUC01<-readOGR('C:/Bryan/EPA/Data/LakesDatabase/LakeMorpho/ne01lakemorpho.shp',
@@ -115,7 +116,7 @@ flag==6 | V2 Duplicate lake; V2_166421080=V2_19333669=V1_19333669
 
 ```
 
-```{r functions, include=FALSE, echo=FALSE, cache=FALSE}
+```{r functions, include=FALSE, echo=FALSE, cache=TRUE}
 #function to overlay one spdf on another and extract matching indices
     fOver<-function(One,Two){ #One & Two are the spatial objects
       a<-over(One, Two, returnList = TRUE) #run overlay
@@ -263,7 +264,7 @@ Data
 *  Save as SpatialPolygonsDataFrame "V1"
 
 Here are the first few lines of the V1 attribute data: 
-```{r headV1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r headV1, include=TRUE, echo=FALSE, cache=TRUE}
     head(V1@data)
 ```
 **Note:**  for V1 the only important attribute (for now) is the WB_ID.  This is the unique id for the lake
@@ -275,12 +276,12 @@ Here are the first few lines of the V1 attribute data:
 *  Save as SpatialPolygonsDataFrame "V2"
 
 Here are the first few lines of the V2 attribute data: 
-```{r headV2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r headV2, include=TRUE, echo=FALSE, cache=TRUE}
     head(V2@data)
 ```
 **Note:**  for V2 the only attribute is the COMID.  This is the unique id for the lake and should match V1$WB_ID
 
-```{r compV1_V2, include=FALSE, echo=FALSE, cache=FALSE}
+```{r compV1_V2, include=FALSE, echo=FALSE, cache=TRUE}
   #calculate the areas by NHD version
     #get the Version 1 area
       V1area<-data.frame(WBID=V1$WB_ID,areaV1=gArea(V1,byid=TRUE))
@@ -442,7 +443,7 @@ Comparison Steps:
 
 <br> 
 **These are the lakes that need to be verified:**
-```{r chkV1V2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r chkV1V2, include=TRUE, echo=FALSE, cache=TRUE}
     chkV1V2[,-10]
 ```
 
@@ -461,7 +462,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=1 indicating a single lake in V1 maps to multiple lake in V2
 
-```{r Rows1,2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows1,2, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -477,7 +478,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=1 indicating a single lake in V1 maps to multiple lake in V2
 
-```{r Rows3,4, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows3,4, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -492,7 +493,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=1 indicating a single lake in V1 maps to multiple lake in V2
 
-```{r Rows5,6, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows5,6, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -508,7 +509,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=1 indicating a single lake in V1 maps to multiple lake in V2
 
-```{r Rows7,8, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows7,8, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -524,7 +525,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=1 indicating a single lake in V1 maps to multiple lake in V2
 
-```{r Rows9,10, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows9,10, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -540,7 +541,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=1 indicating a single lake in V1 maps to multiple lake in V2
 
-```{r Rows11:13, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows11:13, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -556,7 +557,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=1 indicating a single lake in V1 maps to multiple lake in V2
 
-```{r Rows14,15, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows14,15, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -573,7 +574,7 @@ Visually check the flagged lakes with colocated matches:
 * Add WBIDs to joinMRB1_V1V2 with flag=1 indicating a single lake in V1 maps to multiple lake in V2
                                      
 
-```{r Rows16:18, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows16:18, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -589,7 +590,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=2 indicating multiple lakes in V1 map to a single lake in V2
 
-```{r Rows19:20, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows19:20, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -605,7 +606,7 @@ Visually check the flagged lakes with colocated matches:
 * Plotting the lakes (see below) indicates they are contiguous and could be joined or separate.
 * Add WBIDs to joinMRB1_V1V2 with flag=2 indicating multiple lakes in V1 map to a single lake in V2
 
-```{r Rows21:22, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows21:22, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -624,7 +625,7 @@ Visually check the flagged lakes with colocated matches:
 * When plotted together it is clear that the V1 lake is a tiny spot on the south end of V2
 * Add WBIDs to joinMRB1_V1V2 with flag=3 and the comment: Lakes collocated but areas unequal
 
-```{r Rows23, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows23, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -633,7 +634,7 @@ Visually check the flagged lakes with colocated matches:
       joinMRB1_V1V2<-rbind(joinMRB1_V1V2,a)  #add to joinMRB1_V1V2 with flag  
 ```
 
-```{r Rows23a, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows23a, include=TRUE, echo=FALSE, cache=TRUE}
     par(mfrow=c(1,2))
     plot(V2[V2$COMID==166174730,],col='blue',axes=TRUE)
       plot(V1[V1$WB_ID==6094729,],col='red',axes=TRUE,add=TRUE,border=NA)
@@ -651,7 +652,7 @@ Visually check the flagged lakes with colocated matches:
 * When plotted together it is clear that the V1 lake is a portion of V2
 * Add WBIDs to joinMRB1_V1V2 with flag=3 and the comment: Lakes collocated but areas unequal
 
-```{r Rows24, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows24, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -660,7 +661,7 @@ Visually check the flagged lakes with colocated matches:
       joinMRB1_V1V2<-rbind(joinMRB1_V1V2,a)  #add to joinMRB1_V1V2 with flag
 ```
 
-```{r Rows24a, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows24a, include=TRUE, echo=FALSE, cache=TRUE}
     par(mfrow=c(1,2))
     plot(V2[V2$COMID==931050002,],col='blue',axes=TRUE)
       plot(V1[V1$WB_ID==6710763,],col='red',axes=TRUE,add=TRUE,border=NA)
@@ -678,7 +679,7 @@ Visually check the flagged lakes with colocated matches:
 * When plotted together it is clear that the V1 lake is a portion of V2
 * Add WBIDs to joinMRB1_V1V2 with flag=3 and the comment: Lakes collocated but areas unequal
 
-```{r Rows25, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows25, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -687,7 +688,7 @@ Visually check the flagged lakes with colocated matches:
       joinMRB1_V1V2<-rbind(joinMRB1_V1V2,a)  #add to joinMRB1_V1V2 with flag
 ```
 
-```{r Rows25a, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows25a, include=TRUE, echo=FALSE, cache=TRUE}
     par(mfrow=c(1,2))
     plot(V2[V2$COMID==166174267,],col='blue',axes=TRUE)
       plot(V1[V1$WB_ID==6732123,],col='red',axes=TRUE,add=TRUE,border=NA)
@@ -705,7 +706,7 @@ Visually check the flagged lakes with colocated matches:
 * When plotted together it is clear that the V1 lake is a portion of V2
 * Add WBIDs to joinMRB1_V1V2 with flag=3 and the comment: Lakes collocated but areas unequal
 
-```{r Rows26, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows26, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -714,7 +715,7 @@ Visually check the flagged lakes with colocated matches:
       joinMRB1_V1V2<-rbind(joinMRB1_V1V2,a)  #add to joinMRB1_V1V2 with flag
 ```
 
-```{r Rows26a, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows26a, include=TRUE, echo=FALSE, cache=TRUE}
     par(mfrow=c(1,2))
     plot(V2[V2$COMID==931070002,],col='blue',axes=TRUE)
       plot(V1[V1$WB_ID==6760548,],col='red',axes=TRUE,add=TRUE,border=NA)
@@ -732,7 +733,7 @@ Visually check the flagged lakes with colocated matches:
 * When plotted together it is clear that the V1 lake is a portion of V2
 * Add WBIDs to joinMRB1_V1V2 with flag=3 and the comment: Lakes collocated but areas unequal
 
-```{r Rows27, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows27, include=TRUE, echo=FALSE, cache=TRUE}
     showMaps(Rows,Zoom)  #make the plots
   #add Rows to joinMRB1_V1V2
       a<-chkV1V2[Rows,c('WBID_V1','WBID_V2')]
@@ -741,7 +742,7 @@ Visually check the flagged lakes with colocated matches:
       joinMRB1_V1V2<-rbind(joinMRB1_V1V2,a)  #add to joinMRB1_V1V2 with flag
 ```
 
-```{r Rows27a, include=TRUE, echo=FALSE, cache=FALSE}
+```{r Rows27a, include=TRUE, echo=FALSE, cache=TRUE}
     par(mfrow=c(1,2))
     plot(V1[V1$WB_ID==8390908,],col='red',axes=TRUE)
       title('V1 8390908')
@@ -751,7 +752,7 @@ Visually check the flagged lakes with colocated matches:
   
 ```
 
-```{r 27b, include=TRUE, echo=FALSE, cache=FALSE}
+```{r 27b, include=TRUE, echo=FALSE, cache=TRUE}
       par(mfrow=c(1,1))
           plotVicinity(2,8390908,1)
 ```
@@ -762,7 +763,7 @@ Visually check the lakes without matches in the other version
 * Four lakes present in V1 not present in V2
 * Four lakes present in V2 not present in V1
 
-```{r missingLakes, include=TRUE, echo=FALSE, cache=FALSE}
+```{r missingLakes, include=TRUE, echo=FALSE, cache=TRUE}
      chkV1V2[is.na(chkV1V2$WBID_V1)|is.na(chkV1V2$WBID_V2),]
     
 ```
@@ -780,90 +781,90 @@ The missing lakes-6 of 8
 * These are shown in the plots
 
 
-```{r a1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r a1, include=TRUE, echo=FALSE, cache=TRUE}
           plotVicinity(1,4782861,.5)
 ```
 
-```{r a2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r a2, include=TRUE, echo=FALSE, cache=TRUE}
           plotGmap(1,4782861,Zoom=12) 
 ```
 
-```{r a3, include=TRUE, echo=TRUE, cache=FALSE}
+```{r a3, include=TRUE, echo=TRUE, cache=TRUE}
             Row<-nrow(joinMRB1_V1V2)+1 #row to add
               joinMRB1_V1V2[Row,'WBID_V1']<-4782861
               joinMRB1_V1V2[Row,'flag']<-4
               joinMRB1_V1V2[Row,'comment']<-'In V1 but not V2.'
 ```
 
-```{r c1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r c1, include=TRUE, echo=FALSE, cache=TRUE}
           plotVicinity(1,22287527,.5)
 ```
 
-```{r c2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r c2, include=TRUE, echo=FALSE, cache=TRUE}
           plotGmap(1,22287527,Zoom=14) 
 ```
 
-```{r c3, include=TRUE, echo=TRUE, cache=FALSE}
+```{r c3, include=TRUE, echo=TRUE, cache=TRUE}
             Row<-nrow(joinMRB1_V1V2)+1 #row to add
               joinMRB1_V1V2[Row,'WBID_V1']<-22287527
               joinMRB1_V1V2[Row,'flag']<-4
               joinMRB1_V1V2[Row,'comment']<-'In V1 but not V2.'
 ```
 
-```{r d1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r d1, include=TRUE, echo=FALSE, cache=TRUE}
           plotVicinity(1,22287665,1)
 ```
 
-```{r d2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r d2, include=TRUE, echo=FALSE, cache=TRUE}
           plotGmap(1,22287665,Zoom=16) 
 ```
 
-```{r d3, include=TRUE, echo=TRUE, cache=FALSE}
+```{r d3, include=TRUE, echo=TRUE, cache=TRUE}
             Row<-nrow(joinMRB1_V1V2)+1 #row to add
               joinMRB1_V1V2[Row,'WBID_V1']<-22287665
               joinMRB1_V1V2[Row,'flag']<-4
               joinMRB1_V1V2[Row,'comment']<-'In V1 but not V2.'
 ```
 
-```{r e1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r e1, include=TRUE, echo=FALSE, cache=TRUE}
           plotVicinity(1,15516920,1)
 ```
 
-```{r e2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r e2, include=TRUE, echo=FALSE, cache=TRUE}
           plotGmap(1,15516920,Zoom=16) 
 ```
 
-```{r e3, include=TRUE, echo=TRUE, cache=FALSE}
+```{r e3, include=TRUE, echo=TRUE, cache=TRUE}
             Row<-nrow(joinMRB1_V1V2)+1 #row to add  
               joinMRB1_V1V2[Row,'WBID_V2']<-15516920
               joinMRB1_V1V2[Row,'flag']<-5
               joinMRB1_V1V2[Row,'comment']<-'In V2 but not V1.'
 ```
 
-```{r f1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r f1, include=TRUE, echo=FALSE, cache=TRUE}
           plotVicinity(2,15516922,1)
 ```
 
-```{r f2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r f2, include=TRUE, echo=FALSE, cache=TRUE}
           plotGmap(2,15516922,Zoom=16) 
 ```
 
-```{r f3, include=TRUE, echo=TRUE, cache=FALSE}
+```{r f3, include=TRUE, echo=TRUE, cache=TRUE}
             Row<-nrow(joinMRB1_V1V2)+1 #row to add  
               joinMRB1_V1V2[Row,'WBID_V2']<-15516922
               joinMRB1_V1V2[Row,'flag']<-5
               joinMRB1_V1V2[Row,'comment']<-'In V2 but not V1.'
 ```
 
-```{r g1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r g1, include=TRUE, echo=FALSE, cache=TRUE}
           plotVicinity(2,60444415,1)
 ```
 
-```{r g2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r g2, include=TRUE, echo=FALSE, cache=TRUE}
           plotGmap(2,60444415,Zoom=15) 
 ```
 
-```{r g3, include=TRUE, echo=TRUE, cache=FALSE}
+```{r g3, include=TRUE, echo=TRUE, cache=TRUE}
             Row<-nrow(joinMRB1_V1V2)+1 #row to add  
               joinMRB1_V1V2[Row,'WBID_V2']<-60444415
               joinMRB1_V1V2[Row,'flag']<-5
@@ -880,19 +881,19 @@ The missing lakes-the penultimate
 * Here are the graphics for V1_WBID=10312598:
 
   
-```{r b1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r b1, include=TRUE, echo=FALSE, cache=TRUE}
     wbid<-10312598;scale<-2.5;version<-1;
           plotVicinity(version,wbid,scale)
 ```
 
-```{r b2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r b2, include=TRUE, echo=FALSE, cache=TRUE}
           plotGmap(version,wbid,Zoom=10) 
       #update original line in joinMRB1_V1V2
         joinMRB1_V1V2[joinMRB1_V1V2$WBID_V1==22302965,'flag']<-2
         joinMRB1_V1V2[joinMRB1_V1V2$WBID_V1==22302965,'comment']<-'Two Lakes in V1 represented as a single lake in V2'
 ```
 
-```{r b3, include=TRUE, echo=FALSE, cache=FALSE}
+```{r b3, include=TRUE, echo=FALSE, cache=TRUE}
       #add new line to joinMRB1_V1V2
         Row<-nrow(joinMRB1_V1V2)+1 #row to add
           joinMRB1_V1V2[Row,'WBID_V1']<-10312598
@@ -906,7 +907,7 @@ The missing lakes-the ultimate
 -------------------------
 * The overlay did not find a match for V2_WBID=166421080 in V1
 * When V2_WBID=166421080 and  V1 lakes are plotted V2_WBID=166421080 is seen to be colocated with a V1 lakes
-```{r h1, include=TRUE, echo=FALSE, cache=FALSE}
+```{r h1, include=TRUE, echo=FALSE, cache=TRUE}
     wbid<-166421080;scale<-.5;version<-2;
           plotVicinity(version,wbid,scale)
 ```
@@ -918,7 +919,7 @@ The missing lakes-the ultimate
 * Need to update joinMRB1_V1V2 to reflect this adding a new flag code #5 to explain what happened.
 
 
-```{r h2, include=TRUE, echo=FALSE, cache=FALSE}
+```{r h2, include=TRUE, echo=FALSE, cache=TRUE}
   par(mfrow=c(1,2))
     plot(HUC01[HUC01$COMID==166421080,],col='blue',axes=TRUE) #doesn't show up in esri
       title('HUC01$COMID==166421080')
@@ -928,7 +929,7 @@ The missing lakes-the ultimate
       mtext(paste('Area = ',round(gArea(HUC01[HUC01$COMID==19333669,],byid=TRUE))),side=1,line=0)
 ```
 
-```{r h3, include=TRUE, echo=FALSE, cache=FALSE}
+```{r h3, include=TRUE, echo=FALSE, cache=TRUE}
     #edit joinMRB1_V1V2
       Comment<-'V2 Duplicate lake; V2_166421080=V2_19333669=V1_19333669'
         joinMRB1_V1V2[which(joinMRB1_V1V2$WBID_V1==19333669),]
@@ -947,7 +948,7 @@ QAQC-Check to make sure all V1 and V2 WBIDs are included in joinMRB1_V1V2
 -------------------------
 * All V1 and V2 WBIDs are in joinMRB1_V1V2
 
-```{r Q1, include=TRUE, echo=TRUE, cache=FALSE}
+```{r Q1, include=TRUE, echo=TRUE, cache=TRUE}
 table(V1$WB_ID%in%joinMRB1_V1V2$WBID_V1)
 table(V2$COMID%in%joinMRB1_V1V2$WBID_V2)
 ```
@@ -955,7 +956,7 @@ table(V2$COMID%in%joinMRB1_V1V2$WBID_V2)
 * Checking if all joinMRB1_V1V2 WBIDs are in V1 and V2 shows that for each Version 3 are missing
 * For each version 3 lakes are found in one version and not the next so the mis-matches are NAs.
 
-```{r Q2, include=TRUE, echo=TRUE, cache=FALSE}
+```{r Q2, include=TRUE, echo=TRUE, cache=TRUE}
 table(joinMRB1_V1V2$WBID_V1%in%V1$WB_ID)
   joinMRB1_V1V2[which(joinMRB1_V1V2$WBID_V1%in%V1$WB_ID==FALSE),]
 table(joinMRB1_V1V2$WBID_V2%in%V2$COMID)
@@ -966,7 +967,7 @@ Save the data
 -------------------------
 * joinMRB1_V1V2 saved to './joinMRB1_V1V2.rda'
 
-```{r Save, include=FALSE, echo=FALSE, cache=FALSE}
+```{r Save, include=FALSE, echo=FALSE, cache=TRUE}
   #save the data
     save(joinMRB1_V1V2,file='../joinMRB1_V1V2.rda')
 ```

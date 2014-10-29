@@ -3,7 +3,9 @@ A table to join the Waterbody IDs (WBID) for lakes in MRB1 (HUC01 and HUC02) fro
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
   library(knitr)
-      #setwd('./tables/')setwd('./tables/')
+      a<-getwd()
+        if(substr(a,nchar(a)-6,nchar(a))=='LakesDB') {setwd('./tables/')
+          } else {if(substr(a,nchar(a)-5,nchar(a))!='tables') print('Check Working Directory')}
   knit('./joinMRB1_V1V2.rmd')
 -->
 Introduction:
@@ -56,9 +58,6 @@ flag==6 | V2 Duplicate lake; V2_166421080=V2_19333669=V1_19333669
 
 
 
-
-
-
 Data
 -------------------------
 *  Load the NHD HUC01 & 02 lakes (MRB1) based on NHDplus Version 1. 
@@ -70,21 +69,20 @@ Here are the first few lines of the V1 attribute data:
 
 ```
 ##   OBJECTID WB_ID AlbersAreaM Centroid_Long Centroid_Lat ShorelineAlbersM
-## 1        1   487       42396        -68.38        46.19            896.8
-## 2        2   489       26178        -68.39        46.19            735.7
-## 3        3   491     1480297        -68.38        46.18           7741.6
-## 4        4   493       67348        -68.11        46.19           1056.2
-## 5        5   495       68737        -68.42        46.18           1671.7
-## 6        6   499       27255        -68.36        46.18            700.0
-##   Shape_Length  Shape_Area AlbersX AlbersY HUC_Region
-## 1     0.009059 0.000004941 2106441 1279649          1
-## 2     0.008068 0.000003051 2105817 1279255          1
-## 3     0.084338 0.000172488 2106786 1278696          1
-## 4     0.011058 0.000007848 2126595 1285107          1
-## 5     0.019320 0.000008010 2104045 1278093          1
-## 6     0.008649 0.000003176 2108146 1278936          1
+## 1        1   487    42396.01     -68.38005     46.19195         896.7652
+## 2        2   489    26178.35     -68.38925     46.19016         735.7048
+## 3        3   491  1480297.11     -68.37932     46.18283        7741.6274
+## 4        4   493    67347.96     -68.11023     46.18677        1056.1532
+## 5        5   495    68736.67     -68.41549     46.18470        1671.6550
+## 6        6   499    27255.09     -68.36159     46.18139         700.0032
+##   Shape_Length     Shape_Area AlbersX AlbersY HUC_Region
+## 1  0.009058513 0.000004940906 2106441 1279649          1
+## 2  0.008068431 0.000003050771 2105817 1279255          1
+## 3  0.084337783 0.000172488199 2106786 1278696          1
+## 4  0.011057748 0.000007848138 2126595 1285107          1
+## 5  0.019319986 0.000008009649 2104045 1278093          1
+## 6  0.008649020 0.000003175754 2108146 1278936          1
 ```
-
 **Note:**  for V1 the only important attribute (for now) is the WB_ID.  This is the unique id for the lake
 
 *  Load the NHD HUC01 lakes based on NHDplus Version 2.
@@ -104,9 +102,7 @@ Here are the first few lines of the V2 attribute data:
 ## 10101986 10101986
 ## 10101990 10101990
 ```
-
 **Note:**  for V2 the only attribute is the COMID.  This is the unique id for the lake and should match V1$WB_ID
-
 
 
 Compare V1 and V2
@@ -134,44 +130,79 @@ Comparison Steps:
 **These are the lakes that need to be verified:**
 
 ```
-##     WBID_V1   WBID_V2 nV1 nV2 flagWBID   areaV1   areaV2 perDif flagArea
-## 1   1720193   1720187   2   1        1  1409433  1243674   0.12        1
-## 2   1720193   1720193   2   1        1  1409433   165757   0.88        1
-## 3   9312497   5842312   2   1        1  3939308  3015457   0.23        1
-## 4   9312497 120053397   2   1        1  3939308   898004   0.77        1
-## 5   9326606   9326590   2   1        1  4655489  1151119   0.75        1
-## 6   9326606   9326606   2   1        1  4655489  3504371   0.25        1
-## 7   9479066   9443357   2   1        1    90662    82919   0.09        1
-## 8   9479066   9479066   2   1        1    90662     7742   0.91        1
-## 9   9512548   9512546   2   1        1  9198135  9072954   0.01        1
-## 10  9512548   9512548   2   1        1  9198135   125180   0.99        1
-## 11 11686920   4724203   3   1        1 75539790    16735   1.00        1
-## 12 11686920   4726045   3   1        1 75539790 46468664   0.38        1
-## 13 11686920 120053255   3   1        1 75539790 29054387   0.62        1
-## 14 22222791   7688829   2   1        1  2367407  2305872   0.03        1
-## 15 22222791  22222791   2   1        1  2367407  2305872   0.03        1
-## 16 22223101   7689297   3   1        1    49256     8773   0.82        1
-## 17 22223101   9344247   3   1        1    49256    14948   0.70        1
-## 18 22223101 166174657   3   1        1    49256    25534   0.48        1
-## 19  7717818 120052268   1   2        1  6542258 10364202   0.58        1
-## 20  7717850 120052268   1   2        1  3821949 10364202   1.71        1
-## 21  8086079 120053438   1   2        1    21356    34158   0.60        1
-## 22 22746261 120053438   1   2        1    12801    34158   1.67        1
-## 23  6094729 166174730   1   1        0    11963  5123479 427.28        1
-## 24  6710763 931050002   1   1        0     9314   375329  39.30        1
-## 25  6732123 166174267   1   1        0   169247 15832932  92.55        1
-## 26  6760548 931070002   1   1        0    24786 15283308 615.61        1
-## 27  8390908   8390908   1   1        0   338542   112019   0.67        1
-## 28       NA  15516920  NA   1        2       NA    14580     NA        2
-## 29       NA  15516922  NA   1        2       NA    14710     NA        2
-## 30       NA  60444415  NA   1        2       NA    58649     NA        2
-## 31       NA 166421080  NA   1        2       NA 97407208     NA        2
-## 32  4782861        NA   1  NA        2 15023566       NA     NA        2
-## 33 10312598        NA   1  NA        2  4707417       NA     NA        2
-## 34 22287527        NA   1  NA        2   717449       NA     NA        2
-## 35 22287665        NA   1  NA        2    67309       NA     NA        2
+##     WBID_V1   WBID_V2 nV1 nV2 flagWBID       areaV1       areaV2 perDif
+## 1   1720193   1720187   2   1        1  1409433.129  1243673.867   0.12
+## 2   1720193   1720193   2   1        1  1409433.129   165757.048   0.88
+## 3   9312497   5842312   2   1        1  3939308.213  3015457.082   0.23
+## 4   9312497 120053397   2   1        1  3939308.213   898003.794   0.77
+## 5   9326606   9326590   2   1        1  4655488.620  1151119.466   0.75
+## 6   9326606   9326606   2   1        1  4655488.620  3504371.302   0.25
+## 7   9479066   9443357   2   1        1    90661.628    82919.273   0.09
+## 8   9479066   9479066   2   1        1    90661.628     7742.062   0.91
+## 9   9512548   9512546   2   1        1  9198134.954  9072954.228   0.01
+## 10  9512548   9512548   2   1        1  9198134.954   125179.900   0.99
+## 11 11686920   4724203   3   1        1 75539790.467    16734.536   1.00
+## 12 11686920   4726045   3   1        1 75539790.467 46468664.095   0.38
+## 13 11686920 120053255   3   1        1 75539790.467 29054386.760   0.62
+## 14 22222791   7688829   2   1        1  2367407.121  2305872.491   0.03
+## 15 22222791  22222791   2   1        1  2367407.121  2305872.491   0.03
+## 16 22223101   7689297   3   1        1    49256.091     8772.768   0.82
+## 17 22223101   9344247   3   1        1    49256.091    14948.470   0.70
+## 18 22223101 166174657   3   1        1    49256.091    25534.374   0.48
+## 19  7717818 120052268   1   2        1  6542258.206 10364202.242   0.58
+## 20  7717850 120052268   1   2        1  3821949.024 10364202.242   1.71
+## 21  8086079 120053438   1   2        1    21356.485    34157.771   0.60
+## 22 22746261 120053438   1   2        1    12801.024    34157.771   1.67
+## 23  6094729 166174730   1   1        0    11962.958  5123479.157 427.28
+## 24  6710763 931050002   1   1        0     9313.528   375328.853  39.30
+## 25  6732123 166174267   1   1        0   169247.094 15832931.927  92.55
+## 26  6760548 931070002   1   1        0    24786.086 15283307.791 615.61
+## 27  8390908   8390908   1   1        0   338541.855   112018.591   0.67
+## 28       NA  15516920  NA   1        2           NA    14579.986     NA
+## 29       NA  15516922  NA   1        2           NA    14710.483     NA
+## 30       NA  60444415  NA   1        2           NA    58649.316     NA
+## 31       NA 166421080  NA   1        2           NA 97407208.137     NA
+## 32  4782861        NA   1  NA        2 15023566.443           NA     NA
+## 33 10312598        NA   1  NA        2  4707416.769           NA     NA
+## 34 22287527        NA   1  NA        2   717449.443           NA     NA
+## 35 22287665        NA   1  NA        2    67308.959           NA     NA
+##    flagArea
+## 1         1
+## 2         1
+## 3         1
+## 4         1
+## 5         1
+## 6         1
+## 7         1
+## 8         1
+## 9         1
+## 10        1
+## 11        1
+## 12        1
+## 13        1
+## 14        1
+## 15        1
+## 16        1
+## 17        1
+## 18        1
+## 19        1
+## 20        1
+## 21        1
+## 22        1
+## 23        1
+## 24        1
+## 25        1
+## 26        1
+## 27        1
+## 28        2
+## 29        2
+## 30        2
+## 31        2
+## 32        2
+## 33        2
+## 34        2
+## 35        2
 ```
-
 
 <br> 
 Visually check the flagged lakes with colocated matches:
@@ -195,8 +226,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows1,2](figure/Rows1_21.png) ![plot of chunk Rows1,2](figure/Rows1_22.png) ![plot of chunk Rows1,2](figure/Rows1_23.png) 
-
+![plot of chunk Rows1,2](figure/Rows1,2-1.png) ![plot of chunk Rows1,2](figure/Rows1,2-2.png) ![plot of chunk Rows1,2](figure/Rows1,2-3.png) 
 
 * For **chkV1V2[c(3, 4),]** 
   * WBID_v1=c(9312497)
@@ -211,8 +241,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows3,4](figure/Rows3_41.png) ![plot of chunk Rows3,4](figure/Rows3_42.png) ![plot of chunk Rows3,4](figure/Rows3_43.png) 
-
+![plot of chunk Rows3,4](figure/Rows3,4-1.png) ![plot of chunk Rows3,4](figure/Rows3,4-2.png) ![plot of chunk Rows3,4](figure/Rows3,4-3.png) 
 * For **chkV1V2[c(5, 6),]** 
   * WBID_v1=c(9326606)
   * WBID_v2=c(9326590, 9326606)
@@ -226,8 +255,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows5,6](figure/Rows5_61.png) ![plot of chunk Rows5,6](figure/Rows5_62.png) ![plot of chunk Rows5,6](figure/Rows5_63.png) 
-
+![plot of chunk Rows5,6](figure/Rows5,6-1.png) ![plot of chunk Rows5,6](figure/Rows5,6-2.png) ![plot of chunk Rows5,6](figure/Rows5,6-3.png) 
 
 * For **chkV1V2[c(7, 8),]** 
   * WBID_v1=c(9479066)
@@ -242,8 +270,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows7,8](figure/Rows7_81.png) ![plot of chunk Rows7,8](figure/Rows7_82.png) ![plot of chunk Rows7,8](figure/Rows7_83.png) 
-
+![plot of chunk Rows7,8](figure/Rows7,8-1.png) ![plot of chunk Rows7,8](figure/Rows7,8-2.png) ![plot of chunk Rows7,8](figure/Rows7,8-3.png) 
 
 * For **chkV1V2[c(9, 10),]** 
   * WBID_v1=c(9512548)
@@ -258,8 +285,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows9,10](figure/Rows9_101.png) ![plot of chunk Rows9,10](figure/Rows9_102.png) ![plot of chunk Rows9,10](figure/Rows9_103.png) 
-
+![plot of chunk Rows9,10](figure/Rows9,10-1.png) ![plot of chunk Rows9,10](figure/Rows9,10-2.png) ![plot of chunk Rows9,10](figure/Rows9,10-3.png) 
 
 * For **chkV1V2[c(11, 12, 13),]** 
   * WBID_v1=c(11686920)
@@ -274,8 +300,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows11:13](figure/Rows11:131.png) ![plot of chunk Rows11:13](figure/Rows11:132.png) ![plot of chunk Rows11:13](figure/Rows11:133.png) 
-
+![plot of chunk Rows11:13](figure/Rows11:13-1.png) ![plot of chunk Rows11:13](figure/Rows11:13-2.png) ![plot of chunk Rows11:13](figure/Rows11:13-3.png) 
 
 * For **chkV1V2[c(14, 15),]** 
   * WBID_v1=c(22222791)
@@ -290,8 +315,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows14,15](figure/Rows14_151.png) ![plot of chunk Rows14,15](figure/Rows14_152.png) ![plot of chunk Rows14,15](figure/Rows14_153.png) 
-
+![plot of chunk Rows14,15](figure/Rows14,15-1.png) ![plot of chunk Rows14,15](figure/Rows14,15-2.png) ![plot of chunk Rows14,15](figure/Rows14,15-3.png) 
 
 * For **chkV1V2[c(16, 17, 18),]** 
   * WBID_v1=c(22223101)
@@ -307,8 +331,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows16:18](figure/Rows16:181.png) ![plot of chunk Rows16:18](figure/Rows16:182.png) ![plot of chunk Rows16:18](figure/Rows16:183.png) 
-
+![plot of chunk Rows16:18](figure/Rows16:18-1.png) ![plot of chunk Rows16:18](figure/Rows16:18-2.png) ![plot of chunk Rows16:18](figure/Rows16:18-3.png) 
 
 * For **chkV1V2[c(19, 20),]** 
   * WBID_v1=c(7717818, 7717850)
@@ -323,8 +346,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows19:20](figure/Rows19:201.png) ![plot of chunk Rows19:20](figure/Rows19:202.png) ![plot of chunk Rows19:20](figure/Rows19:203.png) 
-
+![plot of chunk Rows19:20](figure/Rows19:20-1.png) ![plot of chunk Rows19:20](figure/Rows19:20-2.png) ![plot of chunk Rows19:20](figure/Rows19:20-3.png) 
 
 * For **chkV1V2[c(21, 22),]** 
   * WBID_v1=c(8086079, 22746261)
@@ -339,8 +361,7 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows21:22](figure/Rows21:221.png) ![plot of chunk Rows21:22](figure/Rows21:222.png) ![plot of chunk Rows21:22](figure/Rows21:223.png) 
-
+![plot of chunk Rows21:22](figure/Rows21:22-1.png) ![plot of chunk Rows21:22](figure/Rows21:22-2.png) ![plot of chunk Rows21:22](figure/Rows21:22-3.png) 
 
 * For **chkV1V2[c(23),]** 
   * WBID_v1=c(6094729)
@@ -358,11 +379,9 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows23](figure/Rows231.png) ![plot of chunk Rows23](figure/Rows232.png) ![plot of chunk Rows23](figure/Rows233.png) 
+![plot of chunk Rows23](figure/Rows23-1.png) ![plot of chunk Rows23](figure/Rows23-2.png) ![plot of chunk Rows23](figure/Rows23-3.png) 
 
-
-![plot of chunk Rows23a](figure/Rows23a.png) 
-
+![plot of chunk Rows23a](figure/Rows23a-1.png) 
 
 * For **chkV1V2[c(24),]** 
   * WBID_v1=c(6710763)
@@ -380,11 +399,9 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows24](figure/Rows241.png) ![plot of chunk Rows24](figure/Rows242.png) ![plot of chunk Rows24](figure/Rows243.png) 
+![plot of chunk Rows24](figure/Rows24-1.png) ![plot of chunk Rows24](figure/Rows24-2.png) ![plot of chunk Rows24](figure/Rows24-3.png) 
 
-
-![plot of chunk Rows24a](figure/Rows24a.png) 
-
+![plot of chunk Rows24a](figure/Rows24a-1.png) 
 
 * For **chkV1V2[c(25),]** 
   * WBID_v1=c(6732123)
@@ -402,11 +419,9 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows25](figure/Rows251.png) ![plot of chunk Rows25](figure/Rows252.png) ![plot of chunk Rows25](figure/Rows253.png) 
+![plot of chunk Rows25](figure/Rows25-1.png) ![plot of chunk Rows25](figure/Rows25-2.png) ![plot of chunk Rows25](figure/Rows25-3.png) 
 
-
-![plot of chunk Rows25a](figure/Rows25a.png) 
-
+![plot of chunk Rows25a](figure/Rows25a-1.png) 
 
 * For **chkV1V2[c(26),]** 
   * WBID_v1=c(6760548)
@@ -424,11 +439,9 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows26](figure/Rows261.png) ![plot of chunk Rows26](figure/Rows262.png) ![plot of chunk Rows26](figure/Rows263.png) 
+![plot of chunk Rows26](figure/Rows26-1.png) ![plot of chunk Rows26](figure/Rows26-2.png) ![plot of chunk Rows26](figure/Rows26-3.png) 
 
-
-![plot of chunk Rows26a](figure/Rows26a.png) 
-
+![plot of chunk Rows26a](figure/Rows26a-1.png) 
 
 * For **chkV1V2[c(27),]** 
   * WBID_v1=c(8390908)
@@ -446,14 +459,11 @@ Visually check the flagged lakes with colocated matches:
 ## Regions defined for each Polygons
 ```
 
-![plot of chunk Rows27](figure/Rows271.png) ![plot of chunk Rows27](figure/Rows272.png) ![plot of chunk Rows27](figure/Rows273.png) 
+![plot of chunk Rows27](figure/Rows27-1.png) ![plot of chunk Rows27](figure/Rows27-2.png) ![plot of chunk Rows27](figure/Rows27-3.png) 
 
+![plot of chunk Rows27a](figure/Rows27a-1.png) 
 
-![plot of chunk Rows27a](figure/Rows27a.png) 
-
-
-![plot of chunk 27b](figure/27b.png) 
-
+![plot of chunk 27b](figure/27b-1.png) 
 <br> 
 Visually check the lakes without matches in the other version
 -------------------------
@@ -463,26 +473,25 @@ Visually check the lakes without matches in the other version
 
 
 ```
-##     WBID_V1   WBID_V2 nV1 nV2 flagWBID   areaV1   areaV2 perDif flagArea
-## 28       NA  15516920  NA   1        2       NA    14580     NA        2
-## 29       NA  15516922  NA   1        2       NA    14710     NA        2
-## 30       NA  60444415  NA   1        2       NA    58649     NA        2
-## 31       NA 166421080  NA   1        2       NA 97407208     NA        2
-## 32  4782861        NA   1  NA        2 15023566       NA     NA        2
-## 33 10312598        NA   1  NA        2  4707417       NA     NA        2
-## 34 22287527        NA   1  NA        2   717449       NA     NA        2
-## 35 22287665        NA   1  NA        2    67309       NA     NA        2
-##    flag
-## 28    1
-## 29    1
-## 30    1
-## 31    1
-## 32    1
-## 33    1
-## 34    1
-## 35    1
+##     WBID_V1   WBID_V2 nV1 nV2 flagWBID      areaV1      areaV2 perDif
+## 28       NA  15516920  NA   1        2          NA    14579.99     NA
+## 29       NA  15516922  NA   1        2          NA    14710.48     NA
+## 30       NA  60444415  NA   1        2          NA    58649.32     NA
+## 31       NA 166421080  NA   1        2          NA 97407208.14     NA
+## 32  4782861        NA   1  NA        2 15023566.44          NA     NA
+## 33 10312598        NA   1  NA        2  4707416.77          NA     NA
+## 34 22287527        NA   1  NA        2   717449.44          NA     NA
+## 35 22287665        NA   1  NA        2    67308.96          NA     NA
+##    flagArea flag
+## 28        2    1
+## 29        2    1
+## 30        2    1
+## 31        2    1
+## 32        2    1
+## 33        2    1
+## 34        2    1
+## 35        2    1
 ```
-
 * Plot lake of interest
 * Adjust xlim and ylim to an area around the lake
 * Plot lakes for the other Version that are in the same vicinity
@@ -497,8 +506,7 @@ The missing lakes-6 of 8
 * These are shown in the plots
 
 
-![plot of chunk a1](figure/a1.png) 
-
+![plot of chunk a1](figure/a1-1.png) 
 
 
 ```
@@ -506,20 +514,17 @@ The missing lakes-6 of 8
 ## Google Maps API Terms of Service : http://developers.google.com/maps/terms
 ```
 
-![plot of chunk a2](figure/a2.png) 
-
+![plot of chunk a2](figure/a2-1.png) 
 
 
 ```r
-Row <- nrow(joinMRB1_V1V2) + 1  #row to add
-joinMRB1_V1V2[Row, "WBID_V1"] <- 4782861
-joinMRB1_V1V2[Row, "flag"] <- 4
-joinMRB1_V1V2[Row, "comment"] <- "In V1 but not V2."
+            Row<-nrow(joinMRB1_V1V2)+1 #row to add
+              joinMRB1_V1V2[Row,'WBID_V1']<-4782861
+              joinMRB1_V1V2[Row,'flag']<-4
+              joinMRB1_V1V2[Row,'comment']<-'In V1 but not V2.'
 ```
 
-
-![plot of chunk c1](figure/c1.png) 
-
+![plot of chunk c1](figure/c1-1.png) 
 
 
 ```
@@ -527,20 +532,17 @@ joinMRB1_V1V2[Row, "comment"] <- "In V1 but not V2."
 ## Google Maps API Terms of Service : http://developers.google.com/maps/terms
 ```
 
-![plot of chunk c2](figure/c2.png) 
-
+![plot of chunk c2](figure/c2-1.png) 
 
 
 ```r
-Row <- nrow(joinMRB1_V1V2) + 1  #row to add
-joinMRB1_V1V2[Row, "WBID_V1"] <- 22287527
-joinMRB1_V1V2[Row, "flag"] <- 4
-joinMRB1_V1V2[Row, "comment"] <- "In V1 but not V2."
+            Row<-nrow(joinMRB1_V1V2)+1 #row to add
+              joinMRB1_V1V2[Row,'WBID_V1']<-22287527
+              joinMRB1_V1V2[Row,'flag']<-4
+              joinMRB1_V1V2[Row,'comment']<-'In V1 but not V2.'
 ```
 
-
-![plot of chunk d1](figure/d1.png) 
-
+![plot of chunk d1](figure/d1-1.png) 
 
 
 ```
@@ -548,41 +550,35 @@ joinMRB1_V1V2[Row, "comment"] <- "In V1 but not V2."
 ## Google Maps API Terms of Service : http://developers.google.com/maps/terms
 ```
 
-![plot of chunk d2](figure/d2.png) 
-
-
-
-```r
-Row <- nrow(joinMRB1_V1V2) + 1  #row to add
-joinMRB1_V1V2[Row, "WBID_V1"] <- 22287665
-joinMRB1_V1V2[Row, "flag"] <- 4
-joinMRB1_V1V2[Row, "comment"] <- "In V1 but not V2."
-```
-
-
-
-```
-## Error: missing value where TRUE/FALSE needed
-```
-
-
-
-```
-## Error: missing value where TRUE/FALSE needed
-```
-
+![plot of chunk d2](figure/d2-1.png) 
 
 
 ```r
-Row <- nrow(joinMRB1_V1V2) + 1  #row to add  
-joinMRB1_V1V2[Row, "WBID_V2"] <- 15516920
-joinMRB1_V1V2[Row, "flag"] <- 5
-joinMRB1_V1V2[Row, "comment"] <- "In V2 but not V1."
+            Row<-nrow(joinMRB1_V1V2)+1 #row to add
+              joinMRB1_V1V2[Row,'WBID_V1']<-22287665
+              joinMRB1_V1V2[Row,'flag']<-4
+              joinMRB1_V1V2[Row,'comment']<-'In V1 but not V2.'
 ```
 
 
-![plot of chunk f1](figure/f1.png) 
+```
+## Error in if (is.numeric(i) && i < 0) {: missing value where TRUE/FALSE needed
+```
 
+
+```
+## Error in if (is.numeric(i) && i < 0) {: missing value where TRUE/FALSE needed
+```
+
+
+```r
+            Row<-nrow(joinMRB1_V1V2)+1 #row to add  
+              joinMRB1_V1V2[Row,'WBID_V2']<-15516920
+              joinMRB1_V1V2[Row,'flag']<-5
+              joinMRB1_V1V2[Row,'comment']<-'In V2 but not V1.'
+```
+
+![plot of chunk f1](figure/f1-1.png) 
 
 
 ```
@@ -590,20 +586,17 @@ joinMRB1_V1V2[Row, "comment"] <- "In V2 but not V1."
 ## Google Maps API Terms of Service : http://developers.google.com/maps/terms
 ```
 
-![plot of chunk f2](figure/f2.png) 
-
+![plot of chunk f2](figure/f2-1.png) 
 
 
 ```r
-Row <- nrow(joinMRB1_V1V2) + 1  #row to add  
-joinMRB1_V1V2[Row, "WBID_V2"] <- 15516922
-joinMRB1_V1V2[Row, "flag"] <- 5
-joinMRB1_V1V2[Row, "comment"] <- "In V2 but not V1."
+            Row<-nrow(joinMRB1_V1V2)+1 #row to add  
+              joinMRB1_V1V2[Row,'WBID_V2']<-15516922
+              joinMRB1_V1V2[Row,'flag']<-5
+              joinMRB1_V1V2[Row,'comment']<-'In V2 but not V1.'
 ```
 
-
-![plot of chunk g1](figure/g1.png) 
-
+![plot of chunk g1](figure/g1-1.png) 
 
 
 ```
@@ -611,17 +604,15 @@ joinMRB1_V1V2[Row, "comment"] <- "In V2 but not V1."
 ## Google Maps API Terms of Service : http://developers.google.com/maps/terms
 ```
 
-![plot of chunk g2](figure/g2.png) 
-
+![plot of chunk g2](figure/g2-1.png) 
 
 
 ```r
-Row <- nrow(joinMRB1_V1V2) + 1  #row to add  
-joinMRB1_V1V2[Row, "WBID_V2"] <- 60444415
-joinMRB1_V1V2[Row, "flag"] <- 5
-joinMRB1_V1V2[Row, "comment"] <- "In V2 but not V1."
+            Row<-nrow(joinMRB1_V1V2)+1 #row to add  
+              joinMRB1_V1V2[Row,'WBID_V2']<-60444415
+              joinMRB1_V1V2[Row,'flag']<-5
+              joinMRB1_V1V2[Row,'comment']<-'In V2 but not V1.'
 ```
-
 
 The missing lakes-the penultimate
 -------------------------
@@ -633,8 +624,7 @@ The missing lakes-the penultimate
 * Here are the graphics for V1_WBID=10312598:
 
   
-![plot of chunk b1](figure/b1.png) 
-
+![plot of chunk b1](figure/b1-1.png) 
 
 
 ```
@@ -642,19 +632,15 @@ The missing lakes-the penultimate
 ## Google Maps API Terms of Service : http://developers.google.com/maps/terms
 ```
 
-![plot of chunk b2](figure/b2.png) 
+![plot of chunk b2](figure/b2-1.png) 
 
 ```
-## Error: missing values are not allowed in subscripted assignments of data
-## frames
+## Error in `[<-.data.frame`(`*tmp*`, joinMRB1_V1V2$WBID_V1 == 22302965, : missing values are not allowed in subscripted assignments of data frames
 ```
 
 ```
-## Error: missing values are not allowed in subscripted assignments of data
-## frames
+## Error in `[<-.data.frame`(`*tmp*`, joinMRB1_V1V2$WBID_V1 == 22302965, : missing values are not allowed in subscripted assignments of data frames
 ```
-
-
 
 
 
@@ -662,8 +648,7 @@ The missing lakes-the ultimate
 -------------------------
 * The overlay did not find a match for V2_WBID=166421080 in V1
 * When V2_WBID=166421080 and  V1 lakes are plotted V2_WBID=166421080 is seen to be colocated with a V1 lakes
-![plot of chunk h1](figure/h1.png) 
-
+![plot of chunk h1](figure/h1-1.png) 
 * When he HUC01 shapefile is opened in ArcMap there is no lake corresponding to  V2_WBID=166421080 in the attribute table.
 * V2_WBID=19333669,however, is in the same location.
 * Returning to R V2_WBID=19333669 and V2_WBID=166421080 are plotted and are clearly the same lake; in the same location and the areas match.
@@ -672,8 +657,7 @@ The missing lakes-the ultimate
 * Need to update joinMRB1_V1V2 to reflect this adding a new flag code #5 to explain what happened.
 
 
-![plot of chunk h2](figure/h2.png) 
-
+![plot of chunk h2](figure/h2-1.png) 
 
 
 ```
@@ -683,14 +667,13 @@ The missing lakes-the ultimate
 ## 26380 Same Lake; WBID_V1==WBID_V2 and lake areas match
 ```
 
-
 QAQC-Check to make sure all V1 and V2 WBIDs are included in joinMRB1_V1V2
 -------------------------
 * All V1 and V2 WBIDs are in joinMRB1_V1V2
 
 
 ```r
-table(V1$WB_ID %in% joinMRB1_V1V2$WBID_V1)
+table(V1$WB_ID%in%joinMRB1_V1V2$WBID_V1)
 ```
 
 ```
@@ -700,7 +683,7 @@ table(V1$WB_ID %in% joinMRB1_V1V2$WBID_V1)
 ```
 
 ```r
-table(V2$COMID %in% joinMRB1_V1V2$WBID_V2)
+table(V2$COMID%in%joinMRB1_V1V2$WBID_V2)
 ```
 
 ```
@@ -709,13 +692,12 @@ table(V2$COMID %in% joinMRB1_V1V2$WBID_V2)
 ## 28130
 ```
 
-
 * Checking if all joinMRB1_V1V2 WBIDs are in V1 and V2 shows that for each Version 3 are missing
 * For each version 3 lakes are found in one version and not the next so the mis-matches are NAs.
 
 
 ```r
-table(joinMRB1_V1V2$WBID_V1 %in% V1$WB_ID)
+table(joinMRB1_V1V2$WBID_V1%in%V1$WB_ID)
 ```
 
 ```
@@ -725,7 +707,7 @@ table(joinMRB1_V1V2$WBID_V1 %in% V1$WB_ID)
 ```
 
 ```r
-joinMRB1_V1V2[which(joinMRB1_V1V2$WBID_V1 %in% V1$WB_ID == FALSE), ]
+  joinMRB1_V1V2[which(joinMRB1_V1V2$WBID_V1%in%V1$WB_ID==FALSE),]
 ```
 
 ```
@@ -736,7 +718,7 @@ joinMRB1_V1V2[which(joinMRB1_V1V2$WBID_V1 %in% V1$WB_ID == FALSE), ]
 ```
 
 ```r
-table(joinMRB1_V1V2$WBID_V2 %in% V2$COMID)
+table(joinMRB1_V1V2$WBID_V2%in%V2$COMID)
 ```
 
 ```
@@ -746,7 +728,7 @@ table(joinMRB1_V1V2$WBID_V2 %in% V2$COMID)
 ```
 
 ```r
-joinMRB1_V1V2[which(joinMRB1_V1V2$WBID_V2 %in% V2$COMID == FALSE), ]
+  joinMRB1_V1V2[which(joinMRB1_V1V2$WBID_V2%in%V2$COMID==FALSE),]
 ```
 
 ```
@@ -756,11 +738,9 @@ joinMRB1_V1V2[which(joinMRB1_V1V2$WBID_V2 %in% V2$COMID == FALSE), ]
 ## 28131 22287665      NA    4 In V1 but not V2.
 ```
 
-
 Save the data
 -------------------------
 * joinMRB1_V1V2 saved to './joinMRB1_V1V2.rda'
-
 
 
  
